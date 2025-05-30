@@ -1,4 +1,4 @@
-import "@/styles/globals.css";
+import "@/styles/globals.css"; // 글로벌 css
 import type { AppProps } from "next/app";
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -10,7 +10,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <header>글로벌 헤더</header>
-      <Component {...pageProps} />;
+      <Component {...pageProps} />
     </>
   );
 }
