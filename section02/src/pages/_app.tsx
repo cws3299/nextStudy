@@ -2,6 +2,7 @@ import "@/styles/globals.css"; // 글로벌 css
 import type { AppProps } from "next/app";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
   // Component는 페이지, pageProps는 모든 Props
@@ -21,6 +22,14 @@ export default function App({ Component, pageProps }: AppProps) {
     router.push("/test");
   };
 
+  // Programmatic Navigation은 prefetch가 자동으로 안되므로
+  // router와 useEffect를 활용
+
+  // 일반 이동 페이지중 prefetch를 해제 가능 prefetch={false}
+  useEffect(() => {
+    router.prefetch("/test");
+  });
+
   // 일반 버튼형 이동
   // Link
 
@@ -33,7 +42,9 @@ export default function App({ Component, pageProps }: AppProps) {
         {/* <a href=""></a> */}
         <Link href={"/"}> index</Link>
         &nbsp;
-        <Link href={"/search"}> search</Link>
+        <Link href={"/search"} prefetch={false}>
+          search
+        </Link>
         &nbsp;
         <Link href={"/book/1"}> book/1</Link>
         <div>
