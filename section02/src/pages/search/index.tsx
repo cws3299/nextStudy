@@ -1,4 +1,6 @@
+import SearchAbleLayout from "@/components/searchAbleLayout";
 import { useRouter } from "next/router"; // pageRouter
+import { ReactNode } from "react";
 // import { useRouter } from "next/navigation"; // APP ROUTER용
 
 export default function Page() {
@@ -18,3 +20,7 @@ export default function Page() {
     </h1>
   );
 }
+
+Page.getLayout = (page: ReactNode) => {
+  return <SearchAbleLayout>{page}</SearchAbleLayout>;
+};

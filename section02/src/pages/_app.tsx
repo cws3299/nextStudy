@@ -1,18 +1,40 @@
 import GlobalLayout from "@/components/globalLayout";
+import SearchAbleLayout from "@/components/searchAbleLayout";
 import "@/styles/globals.css"; // 글로벌 css
+import { NextPage } from "next";
 import type { AppProps } from "next/app";
+import { ReactNode } from "react";
 // import Link from "next/link";
 // import { useRouter } from "next/router";
 // import { useEffect } from "react";
 // import page from "./test";
 
-export default function App({ Component, pageProps }: AppProps) {
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactNode) => ReactNode;
+};
+// 타입1. Next에서 기본 제공해주는 NextPage타입에 getLayout 메서드 추가, book url의 경우 getLayout 메서드가 없으므로 옵셔널 처리
+
+export default function App({
+  Component,
+  pageProps,
+}: AppProps & { Component: NextPageWithLayout }) {
+  // 1. App 컴포넌트는 현재 렌더링 요청받은 컴포넌트들을 Component라는 이름으로 받음
+  // 2. 함수도 객체이므로 method 추가 가능 (index.tsx)
+  // 3. 그걸 꺼내서 중괄호와 함께 호출하는 형태로 사용
+
+  const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
+  // getLayout이라는 함수에 의해서 현재 페이지 역할을 하는 컴포넌트가 searchAbleLayout으로 감싸진 채 렌더링됨
+  // /book url과 같이 getLayout이 없는 페이지의 경우 getLayout함수가 없으므로 자기자신을 반환하는 함수를 getLayout으로 설정
+
   return (
     <GlobalLayout>
-      <Component {...pageProps} />
+      {getLayout(<Component {...pageProps} />)}
+      {/* <Component {...pageProps} /> */}
     </GlobalLayout>
   );
 }
+
+///////////////////////////////////////////////////////////////////
 
 // export default function App({ Component, pageProps }: AppProps) {
 //   // Component는 페이지, pageProps는 모든 Props

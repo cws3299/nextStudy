@@ -6,7 +6,9 @@
 // CSS Module을 활용하여 파일별 페이지 별로 클래스 명이 중복되는 css 이슈를 해결할 수 있다.
 // Next에서는 _app.tsx 제외하고는 원천적으로 css를 import하지 못하게 막음
 
+import SearchAbleLayout from "@/components/searchAbleLayout";
 import style from "./index.module.css"; // index.module.css파일안의 속성들이 자동으로 유니크한 값으로 변환되어 style이라는 객체 안에 저장됨
+import { ReactNode } from "react";
 
 export default function Home() {
   return (
@@ -16,3 +18,12 @@ export default function Home() {
     </div>
   );
 }
+
+// index페이지 (home)의 레이아웃을 설정하여 리턴함
+// Home 함수도 객체임 (자바스크립트의 모든 함수는 객체) 그래서 함수에 메서드 추가 가능
+
+// 1. 사용자가 index.tsx 페이지로 접속 요청
+// 2. _app.tsx파일 실행되며 Component가 실행됨 (Component = index.tsx) 이때 getLayout이라는 메서드도 _app.tsx에 전달
+Home.getLayout = (page: ReactNode) => {
+  return <SearchAbleLayout>{page}</SearchAbleLayout>;
+};
