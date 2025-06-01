@@ -17,6 +17,8 @@ export default function App({ Component, pageProps }: AppProps) {
   // Programmatic Navigation
   // 자동으로 이동 (사용자가 직접 클릭해서 이동 x)
 
+  // _app.tsx는 모든 컴포넌트의 부모 역할을 함 -> 예외적으로 css파일을 불러오도록 허용함 -> global.css파일을 불러옴
+
   const router = useRouter();
   const onClickButton = () => {
     router.push("/test");
