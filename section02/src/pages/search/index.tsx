@@ -1,10 +1,34 @@
 import SearchAbleLayout from "@/components/searchAbleLayout";
 import { useRouter } from "next/router"; // pageRouter
 import { ReactNode } from "react";
-import books from "@/mock/books.json";
 import BookItem from "@/components/bookItem";
+import {
+  GetServerSideProps,
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
+import fetchBooks from "@/lib/fetchBooks";
 
-export default function Page() {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  // context는 현재 브라우저로부터 받은 모든 정보가 포함되어 있음
+  // 서버사이드 렌더링에서 미리 쿼리스트링 정보등 가져올 수 있는 사항
+
+  const q = context.query.q;
+
+  const books = await fetchBooks(q as string);
+
+  return {
+    props: {
+      books,
+    },
+  };
+};
+
+export default function Page({
+  books,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div>
       {books.map((book) => (

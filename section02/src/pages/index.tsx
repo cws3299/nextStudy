@@ -1,40 +1,28 @@
 import SearchAbleLayout from "@/components/searchAbleLayout";
 import style from "./index.module.css";
 import { ReactNode, useEffect } from "react";
-import books from "@/mock/books.json";
 import BookItem from "@/components/bookItem";
 import { InferGetServerSidePropsType } from "next";
-import { get } from "http";
+import fetchBooks from "@/lib/fetchBooks";
+import fetchRandomBooks from "@/lib/fetchRandomBooks";
 
-// getServerSideProps next에서 ssr로 동작할 때 사용하기로 약속한 함수
-// 1. index 페이지로 요청이 옴
-// 2. 백엔드나 서드파티에 데이터 요청 후 가져옴
-// 3. HOME 컴포넌트 동작
-export const getServerSideProps = () => {
-  // 컴포넌트보다 먼저 실행되어서, 컴포넌트에 필요한 데이터 불러오는 함수
-  // 서버 환경에서 초기 한 번만 실행 (컴포넌트 보이기 전)
-  // window.location 이런거 console에 찍어서 확인 불가능 함
+export const getServerSideProps = async () => {
+  const [allBooks, recoBooks] = await Promise.all([
+    fetchBooks(),
+    fetchRandomBooks(),
+  ]);
 
-  const data = "hello";
-
-  // return 구조는 아래와 같아야 함 NextJs의 약속
   return {
     props: {
-      data,
+      allBooks,
+      recoBooks,
     },
   };
 };
 
-// 1. 서버측에서 Home 컴포넌트 실행
-// 2. 브라우저측에서 Hydration 진행시 컴포넌트 실행
-// Home 컴포넌트에서도 window.location 같은거 호출 불가능 함 (1번 경우에는 불가능)
-// 브라우저측 2번에서만 동작 시키고 싶으면 useEffect안에 로직 넣으면 됨
-// useEffect는 기본적으로 컴포넌트가 마운트 된 이후에 실행되기 때문에 2번만 포함됨
-// InferGetServerSidePropsType<typeof getServerSideProps> => next에서 ssr시 컴포넌트가 전달받는 props관련 타입
-// props: InferGetServerSidePropsType<typeof getServerSideProps>
-
 export default function Home({
-  data,
+  allBooks,
+  recoBooks,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   useEffect(() => {
     console.log(window.location);
@@ -44,19 +32,79 @@ export default function Home({
     <div className={style.container}>
       <section>
         <h3>지금 추천하는 도서</h3>
-        {books.map((book) => (
+        {recoBooks.map((book) => (
           <BookItem key={book.id} {...book} />
         ))}
       </section>
       <section>
         <h3>등록된 모든 도서</h3>
-        {books.map((book) => (
+        {allBooks.map((book) => (
           <BookItem key={book.id} {...book} />
         ))}
       </section>
     </div>
   );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// import SearchAbleLayout from "@/components/searchAbleLayout";
+// import style from "./index.module.css";
+// import { ReactNode, useEffect } from "react";
+// import books from "@/mock/books.json";
+// import BookItem from "@/components/bookItem";
+// import { InferGetServerSidePropsType } from "next";
+
+// // getServerSideProps next에서 ssr로 동작할 때 사용하기로 약속한 함수
+// // 1. index 페이지로 요청이 옴
+// // 2. 백엔드나 서드파티에 데이터 요청 후 가져옴
+// // 3. HOME 컴포넌트 동작
+// export const getServerSideProps = () => {
+//   // 컴포넌트보다 먼저 실행되어서, 컴포넌트에 필요한 데이터 불러오는 함수
+//   // 서버 환경에서 초기 한 번만 실행 (컴포넌트 보이기 전)
+//   // window.location 이런거 console에 찍어서 확인 불가능 함
+
+//   const data = "hello";
+
+//   // return 구조는 아래와 같아야 함 NextJs의 약속
+//   return {
+//     props: {
+//       data,
+//     },
+//   };
+// };
+
+// // 1. 서버측에서 Home 컴포넌트 실행
+// // 2. 브라우저측에서 Hydration 진행시 컴포넌트 실행
+// // Home 컴포넌트에서도 window.location 같은거 호출 불가능 함 (1번 경우에는 불가능)
+// // 브라우저측 2번에서만 동작 시키고 싶으면 useEffect안에 로직 넣으면 됨
+// // useEffect는 기본적으로 컴포넌트가 마운트 된 이후에 실행되기 때문에 2번만 포함됨
+// // InferGetServerSidePropsType<typeof getServerSideProps> => next에서 ssr시 컴포넌트가 전달받는 props관련 타입
+// // props: InferGetServerSidePropsType<typeof getServerSideProps>
+
+// export default function Home({
+//   data,
+// }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+//   useEffect(() => {
+//     console.log(window.location);
+//   }, []);
+
+//   return (
+//     <div className={style.container}>
+//       <section>
+//         <h3>지금 추천하는 도서</h3>
+//         {books.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//       <section>
+//         <h3>등록된 모든 도서</h3>
+//         {books.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//     </div>
+//   );
+// }
 
 ////////////////////////////////////////////
 

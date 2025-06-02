@@ -26,7 +26,7 @@ export default function SearchAbleLayout({
 
   const onSubmitKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      onSubmit;
+      onSubmit();
     }
   };
   return (
