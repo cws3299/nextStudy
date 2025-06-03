@@ -10,7 +10,7 @@ import fetchRandomBooks from "@/lib/fetchRandomBooks";
 // 1. csr
 // 2. ssr
 // 3. ssr - prefetch
-// 4. ssg: 빌드타임에 미리 사용하는 데이터까지 활용하여 정적 페이지 생성 - 당연히 dev 모드에서는 확인 불가
+// 4. ssg: 빌드타임에 미리 사용하는 데이터까지 활용하여 정적 페이지 생성 - 당연히 dev 모드에서는 확인 불가 (기본 방식)
 export const getStaticProps = async () => {
   console.log("인덱스 페이지");
 
