@@ -9,6 +9,7 @@
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next/types";
 import style from "./[id].module.css";
 import fetchOneBook from "@/lib/fetchOneBook";
+import { useRouter } from "next/router";
 
 export const getStaticPaths = () => {
   return {
@@ -19,7 +20,16 @@ export const getStaticPaths = () => {
       { params: { id: "3" } },
     ],
     // 브라우저에서 1,2,3이 아닌 존재하지 않는 url로 요청을 보내면 fallback을 표현
-    fallback: false,
+    fallback: true,
+
+    // true : 즉시 생성 + 페이지만 미리 반환
+    // props가 없는 그냥 껍데기만 사용자에게 전달 (getStaticProps같은 데이터 전달 안하고, 페이지껍데기만 사전 렌더링해서 전달) -> props를 이후에 계산에서 따로 보내줌
+    // 브라우저에서는 껍데기 먼저 보여주고, 서버에서 props 추가로 보내주면, 이후 props 반영해서 리렌더링 (사용자에게 긴 로딩시간을 주지 않는 대신, 먼저 껍데기를 보여줌)
+
+    // blocking: 즉시 생성 (ssr)
+    // book/4 이 요청 올 경우 - blocking옵션 쓰면 ssr처럼 사전렌더링 적용되고 정적 페이지로 생성되며 한 번 만들어진 후에는 .next/server/pages/book 폴더에서 확인 가능하며 이후 ssg처럼 동작
+    // 사전 렌더링을 해야하는 시간이 엄청 길 경우, 로딩이 발생함 -> true옵션 추천
+
     // false -> not found 페이지 표현
     // [[...id]].tsx 파일 있으면 거기로 감. 그래서 지움
     // .next/server/pages/book 폴더에서 html 확인 가능
@@ -28,10 +38,15 @@ export const getStaticPaths = () => {
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const id = context.params!.id; // [id].tsx는 무조건 파라미터가 하나 있으니까 !로 있다고 단언
-
   const book = await fetchOneBook(Number(id));
 
-  console.log(book);
+  // book이 없다면 자동으로 fallback으로 가지 않고 바로 book이 없습니다. 재시도 하세요로 전달
+  if (!book) {
+    return {
+      notFound: true,
+    };
+  }
+
   return {
     props: {
       book,
@@ -42,6 +57,10 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 export default function Page({
   book,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const router = useRouter();
+
+  if (router.isFallback) return "로딩중 입니다";
+
   if (!book) return "book이 없습니다. 재시도 하세요";
 
   const { title, subTitle, description, author, publisher, coverImgUrl } = book;
