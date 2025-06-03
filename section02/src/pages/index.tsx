@@ -6,11 +6,6 @@ import { InferGetStaticPropsType } from "next";
 import fetchBooks from "@/lib/fetchBooks";
 import fetchRandomBooks from "@/lib/fetchRandomBooks";
 
-// ssg용으로 next에서 정의한 함수 명 getStaticProps
-// 1. csr
-// 2. ssr
-// 3. ssr - prefetch
-// 4. ssg: 빌드타임에 미리 사용하는 데이터까지 활용하여 정적 페이지 생성 - 당연히 dev 모드에서는 확인 불가 (기본 방식)
 export const getStaticProps = async () => {
   console.log("인덱스 페이지");
 
@@ -52,6 +47,126 @@ export default function Home({
     </div>
   );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// isr
+// import SearchAbleLayout from "@/components/searchAbleLayout";
+// import style from "./index.module.css";
+// import { ReactNode, useEffect } from "react";
+// import BookItem from "@/components/bookItem";
+// import { InferGetStaticPropsType } from "next";
+// import fetchBooks from "@/lib/fetchBooks";
+// import fetchRandomBooks from "@/lib/fetchRandomBooks";
+
+// export const getStaticProps = async () => {
+//   console.log("인덱스 페이지");
+
+//   const [allBooks, recoBooks] = await Promise.all([
+//     fetchBooks(),
+//     fetchRandomBooks(),
+//   ]);
+
+//   return {
+//     props: {
+//       allBooks,
+//       recoBooks,
+//     },
+//     revalidate: 5, // 몇 초주기로 해당 페이지를 재생성 할지 (index 페이지에 대한 재요청이 오면 3초가 넘으면 재생성)
+//   };
+// };
+
+// export default function Home({
+//   allBooks,
+//   recoBooks,
+// }: InferGetStaticPropsType<typeof getStaticProps>) {
+//   useEffect(() => {
+//     console.log(window.location);
+//   }, []);
+
+//   return (
+//     <div className={style.container}>
+//       <section>
+//         <h3>지금 추천하는 도서</h3>
+//         {recoBooks.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//       <section>
+//         <h3>등록된 모든 도서</h3>
+//         {allBooks.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//     </div>
+//   );
+// }
+
+// ssg용으로 next에서 정의한 함수 명 getStaticProps
+// 1. csr
+// 2. ssr
+// 3. ssr - prefetch
+// 4. ssg: 빌드타임에 미리 사용하는 데이터까지 활용하여 정적 페이지 생성 - 당연히 dev 모드에서는 확인 불가 (기본 방식)
+// 5. isr: 증분 정적 재 생성 -> ssg 방식으로 생성된 페이지를 일정 시간 주기로 재생성
+//// ssg -> 빌드타임에 사전 렌더링 + 사전 데이터로 미리 생성
+//// ssg 방식으로 빌드타임에 생성된 페이지를 react-query의 staleTime과 유사한 개념으로 일정시간이 지난 후 해당 페이지 요청이 오면 페이지 재생성
+//// 기존 ssg방식의 장점 (매우 빠른 속도로 응답 가능) + 최신데이터 반영 가능 (ssr)
+//// revalidate 이후 최초 요청자는 ssg보다는 느리지만 백그라운드에서 next가 자체적으로 ssr보다는 빠르게 페이지 반환, revalidate 된 페이지는 유효시간동안 캐싱되어 있음
+//// 일반적으로 isr기법을 사용하는 것을 추천
+// 6. on demand isr
+//// 시간에 기반으로 데이터가 업데이트 되는 페이지가 아니라, 사용자의 행위를 기반으로 업데이트 되는 페이지의 경우
+//// 특정 이벤트등이 발생하면 즉각 변경되거나, 아무 동작 없으면 그냥 유지되면됨
+//// isr이 최신 데이터를 즉각적으로 반영하기도 힘들고, 불필요한 페이지의 재생성이 발생
+//// ssr로만 할 경우에 서버의 부하가 증가할 수 있음, 사용자가 특정 트리거 행위를 했을 때 revalidate를 발생 시키는 게 on demand isr
+
+//////////////////////////////////////////////////////////////////////////////////////// ssg
+// import SearchAbleLayout from "@/components/searchAbleLayout";
+// import style from "./index.module.css";
+// import { ReactNode, useEffect } from "react";
+// import BookItem from "@/components/bookItem";
+// import { InferGetStaticPropsType } from "next";
+// import fetchBooks from "@/lib/fetchBooks";
+// import fetchRandomBooks from "@/lib/fetchRandomBooks";
+
+// export const getStaticProps = async () => {
+//   console.log("인덱스 페이지");
+
+//   const [allBooks, recoBooks] = await Promise.all([
+//     fetchBooks(),
+//     fetchRandomBooks(),
+//   ]);
+
+//   return {
+//     props: {
+//       allBooks,
+//       recoBooks,
+//     },
+//   };
+// };
+
+// export default function Home({
+//   allBooks,
+//   recoBooks,
+// }: InferGetStaticPropsType<typeof getStaticProps>) {
+//   useEffect(() => {
+//     console.log(window.location);
+//   }, []);
+
+//   return (
+//     <div className={style.container}>
+//       <section>
+//         <h3>지금 추천하는 도서</h3>
+//         {recoBooks.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//       <section>
+//         <h3>등록된 모든 도서</h3>
+//         {allBooks.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//     </div>
+//   );
+// }
 
 /////////////////////////////////////////////////////////////////////////////// ssr - prefetch
 // import SearchAbleLayout from "@/components/searchAbleLayout";
