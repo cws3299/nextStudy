@@ -2,11 +2,18 @@ import SearchAbleLayout from "@/components/searchAbleLayout";
 import style from "./index.module.css";
 import { ReactNode, useEffect } from "react";
 import BookItem from "@/components/bookItem";
-import { InferGetServerSidePropsType } from "next";
+import { InferGetStaticPropsType } from "next";
 import fetchBooks from "@/lib/fetchBooks";
 import fetchRandomBooks from "@/lib/fetchRandomBooks";
 
-export const getServerSideProps = async () => {
+// ssg용으로 next에서 정의한 함수 명 getStaticProps
+// 1. csr
+// 2. ssr
+// 3. ssr - prefetch
+// 4. ssg: 빌드타임에 미리 사용하는 데이터까지 활용하여 정적 페이지 생성 - 당연히 dev 모드에서는 확인 불가
+export const getStaticProps = async () => {
+  console.log("인덱스 페이지");
+
   const [allBooks, recoBooks] = await Promise.all([
     fetchBooks(),
     fetchRandomBooks(),
@@ -23,7 +30,7 @@ export const getServerSideProps = async () => {
 export default function Home({
   allBooks,
   recoBooks,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   useEffect(() => {
     console.log(window.location);
   }, []);
@@ -45,6 +52,55 @@ export default function Home({
     </div>
   );
 }
+
+/////////////////////////////////////////////////////////////////////////////// ssr - prefetch
+// import SearchAbleLayout from "@/components/searchAbleLayout";
+// import style from "./index.module.css";
+// import { ReactNode, useEffect } from "react";
+// import BookItem from "@/components/bookItem";
+// import { InferGetServerSidePropsType } from "next";
+// import fetchBooks from "@/lib/fetchBooks";
+// import fetchRandomBooks from "@/lib/fetchRandomBooks";
+
+// export const getServerSideProps = async () => {
+//   const [allBooks, recoBooks] = await Promise.all([
+//     fetchBooks(),
+//     fetchRandomBooks(),
+//   ]);
+
+//   return {
+//     props: {
+//       allBooks,
+//       recoBooks,
+//     },
+//   };
+// };
+
+// export default function Home({
+//   allBooks,
+//   recoBooks,
+// }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+//   useEffect(() => {
+//     console.log(window.location);
+//   }, []);
+
+//   return (
+//     <div className={style.container}>
+//       <section>
+//         <h3>지금 추천하는 도서</h3>
+//         {recoBooks.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//       <section>
+//         <h3>등록된 모든 도서</h3>
+//         {allBooks.map((book) => (
+//           <BookItem key={book.id} {...book} />
+//         ))}
+//       </section>
+//     </div>
+//   );
+// }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // import SearchAbleLayout from "@/components/searchAbleLayout";
