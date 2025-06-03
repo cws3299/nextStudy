@@ -4,6 +4,7 @@ import BookItem from "@/components/bookItem";
 import fetchBooks from "@/lib/fetchBooks";
 import { useRouter } from "next/router";
 import { BookData } from "@/types";
+import Head from "next/head";
 
 // ssg에서는 context 객체에서 query를 못 꺼내옴, 검색 결과를 서버로부터 불러올 수 없음
 // // 그럼에도 불구하고 ssg로 만들고 싶으면, getStaticProps에서 진행하지 말고, dataFetching은 react처럼 page페이지 안에서 작업해야함
@@ -46,6 +47,15 @@ export default function Page() {
 
   return (
     <div>
+      <Head>
+        <title>한입북스 - 검색결과</title>
+        <meta property="og:image" content="/thumbnail.png" />
+        <meta property="og:title" content="한입북스 - 검색결과" />
+        <meta
+          property="og:description"
+          content="한입 북스에 등록된 도서들을 만나보세요"
+        />
+      </Head>
       {books.map((book) => (
         <BookItem key={book.id} {...book} />
       ))}
