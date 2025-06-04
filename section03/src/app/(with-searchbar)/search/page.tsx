@@ -1,10 +1,19 @@
+import ClientComponent from "@/components/clientComponent";
+
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ q: string }>;
 }) {
   const { q } = await searchParams;
-  return <div>Search 페이지 : {q}</div>;
+  return (
+    <div>
+      <ClientComponent>
+        <></>
+      </ClientComponent>
+      Search 페이지 : {q}
+    </div>
+  );
 }
 
 // 0. url parameter등은 props에 자동으로 next가 넣어줌, 구조 분해 할당으로 그냥 가져다 쓰면 됨

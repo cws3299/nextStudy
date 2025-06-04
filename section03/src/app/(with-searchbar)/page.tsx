@@ -1,6 +1,6 @@
-import ClientComponent from "./clientComponent";
+import ClientComponent from "../../components/clientComponent";
 import styles from "./page.module.css";
-import ServerComponent from "./serverComponent";
+import ServerComponent from "../../components/serverComponent";
 
 export default function Home() {
   return (
@@ -47,3 +47,9 @@ export default function Home() {
 // --- 함수는 직렬화가 불가능, 그래서 (여기) 위치에서 에러가 발생함
 // --- 서버 컴포넌트에서 서버 컴포넌트로도 함수를 전달하면? 이때는 직렬화 이전에 작업이 되기때문에 가능
 // --- 클라이언트 컴포넌트에서 서버 컴포넌트의 서버 액션을 실행하도록 하는 방식이 대비책으로 존재
+
+// 네비게이팅
+// AppRouter 버전의 next에서도 초기접속 이후에 페이지 이동은 모두 기본적으로 csr방식으로 적용
+// ssr이나 prefetch등을 사용할 경우, AppRouter는 pageRouter와 다른점이 존재
+// pageRouter는 hydration에 필요한 Js Bundle 파일을 보내는데, AppRouter의 경우 Js Bundle + RSC Payload (서버컴포넌트)를 보냄
+// 브라우저에서는 hydration이전에 받은 html + js bundle + rsc payload를 합쳐서 사용
