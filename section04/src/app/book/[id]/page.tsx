@@ -53,3 +53,19 @@ export default async function Page({
 
 // 서버 컴포넌트 / 클라이언트 컴포넌트
 // 나누는 기준은 URL외의 다른 인터랙션에 따른 데이터 변화
+
+// Next의 데이터 캐시
+// const response = await fetct('~/api', {catch: "force-cache"}) 이런식으로 가능
+// Next에서는 axios등에서는 활용 불가능함, 오직 fetch method를 확장해야함
+// 여기에서 fetch는 브라우저의 fetch가 아니라 nextJs에서 확장한 서버 클라이언트용 fetch
+// 클라이언트 컴포넌트는 react query + axios구조로, 서버컴포넌트는 fetch로 하는게 캐시에 좋을 듯?
+// 다만 토큰 실시간 유효성 검사를 axios.intercepter에서 했는데 서버컴포넌트 fetch에는 없어서 따로 만들어야 할듯
+
+// 0. 아무 설정 안한다면 기본값이 캐싱 안함 auto no cache (15버전에 바뀜)
+// 1. {cache: 'no-store'} : 캐싱을 아예 안한다는 옵션 (요청올때마다 데이터 캐시에 있는걸 사용하지 않고 백엔드 서버에 바로 요청)
+// 2. {cache: 'force-cache'} : 무조건 캐싱하고, 초기 요청 이후에는 다시 요청하지 않음
+// 3. {next: {revalidate: 3}} : 특정시간을 주기로 캐시 업데이트 (isr과 유사) / 3초마다 요청이 없는데도 업데이트는 아니고, 3초 후 첫 요청 시 revalidate발생
+// 4. {next: {tags: ['a]}}: on-demand-revalidate -> 요청이 들어왔을 때 최신화 함
+
+// A컴포넌트 B컴포넌트가 서로다른 캐시 옵션으로 동일한 API를 패치할 경우 -> 서로에게 영향 없음
+// Next App Router의 fetch는 내부적으로 컴포넌트위치 + fetch 옵션 + URL 조합으로 캐시키 생성
