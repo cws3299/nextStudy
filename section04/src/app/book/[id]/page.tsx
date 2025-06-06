@@ -86,3 +86,27 @@ export default async function Page({
 // Page Router는 서버 사이드 렌더링의 prefetch시 root에서만 데이터를 가져오지만
 // App Router의 서버 컴포넌트는 root에서만 데이터를 가져와서 props로 전달하는게 아니라 각 사용하는 노드에서 fetch를 독립적으로 할 수 있음
 // 다만 이럴경우 너무 많은 fetch요청이 필요한 경우가 있음
+
+// 풀라우트 캐시 (서버컴포넌트에서만)
+// Next 서버측에서 빌드 타임에 특정 페이지의 렌더링 결과를 캐싱하는 기능
+// 1.클라이언트 요청, 2.풀라우트 캐시, 3.(사전)렌더링, 4.리퀘스트 메모이제이션, 5.데이터 캐시, 6.백엔드 서버
+// 풀라우트 캐시 == Page Router의 SSG와 유사함
+// Revalidate가 가능함 (isr처럼) -> 데이터 캐시만 업데이트 되는게 아니라, 풀라우트 캐시도 revalidate 주기에 따라 새로 저장
+// Revalidate 주기 이후 추가 요청인 경우에는 일단 기존 화면 보여주고, 데이터 캐시업데이트하고 풀라우트 캐시도 업데이트
+
+// Next가 알아서 Dynamic Page, Static Page를 나눠줌
+// Dynamic Page: 특정 페이지가 접속 요청을 받을 때마다 변화가 생기거나, 데이터가 달라지는 경우
+// 1. cache가 no-store인 경우
+// 2.동적 함수 (요청에 따라 값이 변하는 기능, 예를 들어 쿠키, 헤더, 쿼리스트링 등)를 사용하는 컴포넌트가 있을 때
+// 이외는 모두 Static Page
+
+// 동적함수 사용, 데이터 캐시 사용 -> DynamicPage
+// 동적함수 사용, 데이터 캐시 사용 안함 -> DynamicPage
+// 동적함수 사용 안함, 데이터 캐시 사용 안함 -> DynamicPage
+// 동적함수 사용 안함, 데이터 캐시 사용 -> StaticPage (풀라우트 캐시 적용 가능)
+// (빌드타임에 미리 생성 후, 캐싱이 되서 클라에서 요청오면 2번 단계에서 바로 리턴 : 굉장히 빠름)
+
+// 서버컴포넌트 <-> 클라이언트 컴포넌트
+// 서버컴포넌트 (Dynamic Page <-> Static Page)
+// Dynamic Page (Cache 종류에 따라)
+// Static Page(Revalidate에 의해 staleTime이 지났다면 데이터 캐시 update하고, 풀라우트 캐시도 업데이트 : isr개념)
