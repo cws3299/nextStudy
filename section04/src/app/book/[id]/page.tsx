@@ -61,6 +61,7 @@ export default async function Page({
 // 클라이언트 컴포넌트는 react query + axios구조로, 서버컴포넌트는 fetch로 하는게 캐시에 좋을 듯?
 // 다만 토큰 실시간 유효성 검사를 axios.intercepter에서 했는데 서버컴포넌트 fetch에는 없어서 따로 만들어야 할듯
 
+// 백엔드 서버로부터 불러온 데이터를 거의 영구적으로 보관하기 위해 사용
 // 0. 아무 설정 안한다면 기본값이 캐싱 안함 auto no cache (15버전에 바뀜)
 // 1. {cache: 'no-store'} : 캐싱을 아예 안한다는 옵션 (요청올때마다 데이터 캐시에 있는걸 사용하지 않고 백엔드 서버에 바로 요청)
 // 2. {cache: 'force-cache'} : 무조건 캐싱하고, 초기 요청 이후에는 다시 요청하지 않음
@@ -69,3 +70,19 @@ export default async function Page({
 
 // A컴포넌트 B컴포넌트가 서로다른 캐시 옵션으로 동일한 API를 패치할 경우 -> 서로에게 영향 없음
 // Next App Router의 fetch는 내부적으로 컴포넌트위치 + fetch 옵션 + URL 조합으로 캐시키 생성
+
+// Request Memoization
+// 하나의 페이지를 렌더링 하는 동안에 중복된 api요청을 캐싱하기 위해 존재함, 렌더링이 종료되면 모든 캐시가 소멸됨
+// 중복된 데이터 패칭 최적화 기능
+// Layout.tsx [Request A, Request B]
+// Page,tsx [Request A, Request B, Request C]
+// [Request A, Request B, Request C] :
+
+// 동일한 렌더링 사이클 안에있으면, 다른 컴포넌트여도 catch 설정 상관없이 Request 메모이제이션
+// 데이터 캐시 개념 !== Request Memoization
+
+// Request Memoization이 왜 필요해?
+// 서버컴포넌트의 도입때문에
+// Page Router는 서버 사이드 렌더링의 prefetch시 root에서만 데이터를 가져오지만
+// App Router의 서버 컴포넌트는 root에서만 데이터를 가져와서 props로 전달하는게 아니라 각 사용하는 노드에서 fetch를 독립적으로 할 수 있음
+// 다만 이럴경우 너무 많은 fetch요청이 필요한 경우가 있음
