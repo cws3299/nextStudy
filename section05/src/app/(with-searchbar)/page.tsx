@@ -1,0 +1,68 @@
+import BookItem from "@/components/book-item";
+import style from "./page.module.css";
+import { BookData } from "@/types";
+
+async function AllBooks() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book`,
+    { cache: "force-cache" }
+  );
+
+  if (!response.ok) {
+    return <div>오류가 발생했습니다...</div>;
+  }
+
+  const allBooks: BookData[] = await response.json();
+
+  return (
+    <div>
+      {allBooks.map((book) => (
+        <BookItem key={book.id} {...book} />
+      ))}
+    </div>
+  );
+}
+
+async function RecoBooks() {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book/random`,
+    { next: { revalidate: 3 } } // revalidate는 dynamic하게 바꾸는 옵션은 아님
+  );
+
+  if (!response.ok) {
+    return <div>오류가 발생했습니다...</div>;
+  }
+
+  const recoBooks: BookData[] = await response.json();
+
+  return (
+    <div>
+      {recoBooks.map((book) => (
+        <BookItem key={book.id} {...book} />
+      ))}
+    </div>
+  );
+}
+
+export default async function Home() {
+  return (
+    <div className={style.container}>
+      <section>
+        <h3>지금 추천하는 도서</h3>
+        <RecoBooks />
+      </section>
+      <section>
+        <h3>등록된 모든 도서</h3>
+        <AllBooks />
+      </section>
+    </div>
+  );
+}
+
+// 확실히 좋네 getServerProps같은걸 위에 놓고 나눠서 하지 않고,
+// Home컴포넌트안에서 한번에 되네
+// 참고로 해당 컴포넌트는 서버에서만 실행되는 서버컴포넌트이므로 console 찍어도 브라우저에서 안찍힘
+// 인터랙션은 'use client' 사용해서 클라이언트 컴포넌트에서 사용
+
+// 동적함수는 없음
+// 데이터 캐싱에 따라 DynamicPage, StaticPage가 정해짐
