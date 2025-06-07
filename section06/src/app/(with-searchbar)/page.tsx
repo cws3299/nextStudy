@@ -1,6 +1,8 @@
 import BookItem from "@/components/book-item";
 import style from "./page.module.css";
 import { BookData } from "@/types";
+import { delay } from "@/util/delay";
+import { Suspense } from "react";
 
 // 특정 페이지의 유형을 강제로 Static, Dynamic 페이지로 설정
 // 1. auto : 기본값으로 아무 강제 없음, 현재 페이지의 동적 함수, 데이터캐싱등에 따라 알아서 설정
@@ -8,9 +10,10 @@ import { BookData } from "@/types";
 // 3. force-static : 페이지를 강제로 Static으로 설정
 // 4. error: 페이지를 강제로 Static 설정 (Static으로 설정 하면 안되는 데 Static으로 설정되면 빌드시 Next가 오류 발생시켜서 빌드 안되고, 로그 확인 가능)
 // dynamic옵션은 사용안하는 걸 추천 -> Next에서 여러 조건을 통해 dynamic, static을 정교하게 정해주기 때문에 해당 옵션을 사용하면 더 좋은 기능이 있는 데 안쓰는 거
-export const dynamic = "force-static";
+// export const dynamic = "force-static";
 
 async function AllBooks() {
+  await delay(1500);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book`,
     { cache: "force-cache" }
@@ -32,6 +35,7 @@ async function AllBooks() {
 }
 
 async function RecoBooks() {
+  await delay(3000);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book/random`,
     { next: { revalidate: 3 } } // revalidate는 dynamic하게 바꾸는 옵션은 아님
@@ -52,16 +56,25 @@ async function RecoBooks() {
   );
 }
 
+// Static 페이지에서는 스트리밍 적용 불가 -> 빌드타임에 모든 컴포넌트 적용됨
+// 스트리밍 테스트 해보려면 dynamic 옵션 바꾸고 suspense줘봐
+
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   return (
     <div className={style.container}>
       <section>
         <h3>지금 추천하는 도서</h3>
-        <RecoBooks />
+        <Suspense fallback={<div>모든 도서 불러오는 중....</div>}>
+          <RecoBooks />
+        </Suspense>
       </section>
       <section>
         <h3>등록된 모든 도서</h3>
-        <AllBooks />
+        <Suspense fallback={<div>등록된 모든 도서 불러오는 중....</div>}>
+          <AllBooks />
+        </Suspense>
       </section>
     </div>
   );

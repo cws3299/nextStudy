@@ -1,19 +1,13 @@
 import BookItem from "@/components/book-item";
 import { BookData } from "@/types";
 import { delay } from "@/util/delay";
+import { Suspense } from "react";
 
 // 해당 페이지는 쿼리 스트링을 사용하므로 동적페이지, 그런데 강제로 dynamic을 force-static으로 설정할 경우
 // 정적페이지로 빌드는 되지만 동적함수들은 자동으로 q든 뭐든 undefined를 리턴하도록 바뀜, 데이터 캐싱 옵션도 force-cache로 바뀜
 // export const dynamic = "error";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const resolved = await searchParams;
-  const q = resolved.q ?? "";
-
+async function SearchResult({ q }: { q: string }) {
   await delay(1500); // 스트리밍 테스트 용
 
   const response = await fetch(
@@ -35,6 +29,24 @@ export default async function Page({
         <BookItem key={book.id} {...book} />
       ))}
     </div>
+  );
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const resolved = await searchParams;
+  const q = resolved.q ?? "";
+
+  return (
+    // 이렇게 감싸면 자동으로 streaming 처리가 진행됨, Suspense로 비동기 컴포넌트를 감싸면 스트리밍 기능을 넣어줌
+    // key값을 넣으면 경로는 동일하고 쿼리스트링이 다를 경우에도 스트리밍 적용
+    // Suspense의 경우 하나의 페이지에서 여러 비동기 컴포넌트를 스트리밍 하기에 좋음
+    <Suspense key={q} fallback={<div>loading........</div>}>
+      <SearchResult q={q} />
+    </Suspense>
   );
 }
 
