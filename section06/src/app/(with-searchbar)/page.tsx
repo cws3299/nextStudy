@@ -16,8 +16,8 @@ import BookItemListSkeleton from "@/components/skeleton/bookItemListSkeleton";
 async function AllBooks() {
   await delay(1500);
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book`,
-    { cache: "force-cache" }
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book`
+    // { cache: "force-cache" }
   );
 
   if (!response.ok) {
@@ -38,8 +38,8 @@ async function AllBooks() {
 async function RecoBooks() {
   await delay(3000);
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book/random`,
-    { next: { revalidate: 3 } } // revalidate는 dynamic하게 바꾸는 옵션은 아님
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book/random`
+    // { next: { revalidate: 3 } } // revalidate는 dynamic하게 바꾸는 옵션은 아님
   );
 
   if (!response.ok) {
