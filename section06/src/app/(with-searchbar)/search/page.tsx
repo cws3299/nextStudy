@@ -1,4 +1,5 @@
 import BookItem from "@/components/book-item";
+import BookItemListSkeleton from "@/components/skeleton/bookItemListSkeleton";
 import { BookData } from "@/types";
 import { delay } from "@/util/delay";
 import { Suspense } from "react";
@@ -44,7 +45,7 @@ export default async function Page({
     // 이렇게 감싸면 자동으로 streaming 처리가 진행됨, Suspense로 비동기 컴포넌트를 감싸면 스트리밍 기능을 넣어줌
     // key값을 넣으면 경로는 동일하고 쿼리스트링이 다를 경우에도 스트리밍 적용
     // Suspense의 경우 하나의 페이지에서 여러 비동기 컴포넌트를 스트리밍 하기에 좋음
-    <Suspense key={q} fallback={<div>loading........</div>}>
+    <Suspense key={q} fallback={<BookItemListSkeleton count={3} />}>
       <SearchResult q={q} />
     </Suspense>
   );
