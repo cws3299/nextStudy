@@ -2,6 +2,14 @@ import BookItem from "@/components/book-item";
 import style from "./page.module.css";
 import { BookData } from "@/types";
 
+// 특정 페이지의 유형을 강제로 Static, Dynamic 페이지로 설정
+// 1. auto : 기본값으로 아무 강제 없음, 현재 페이지의 동적 함수, 데이터캐싱등에 따라 알아서 설정
+// 2. force-dynamic : 페이지를 강제로 Dynamic 페이지로 설정
+// 3. force-static : 페이지를 강제로 Static으로 설정
+// 4. error: 페이지를 강제로 Static 설정 (Static으로 설정 하면 안되는 데 Static으로 설정되면 빌드시 Next가 오류 발생시켜서 빌드 안되고, 로그 확인 가능)
+// dynamic옵션은 사용안하는 걸 추천 -> Next에서 여러 조건을 통해 dynamic, static을 정교하게 정해주기 때문에 해당 옵션을 사용하면 더 좋은 기능이 있는 데 안쓰는 거
+export const dynamic = "force-static";
+
 async function AllBooks() {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book`,
@@ -66,3 +74,8 @@ export default async function Home() {
 
 // 동적함수는 없음
 // 데이터 캐싱에 따라 DynamicPage, StaticPage가 정해짐
+
+// 라우트 세그먼트 옵션
+// 모든 컴포넌트들을 동적페이지인지, 정적 페이지인지 체크하기 힘듬
+// 강제로 특정 페이지를 동적, 정적 페이지로 설정, revalidate를 강제로 설정
+// 옵션은 굉장히 많음
