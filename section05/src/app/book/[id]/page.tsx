@@ -1,4 +1,27 @@
+import { notFound } from "next/navigation";
 import style from "./page.module.css";
+
+// generateStaticParams Next에서 제공해주는 generateStaticParams 함수에 해당 페이지에서 가능한 파라미터를 미리 정의해두면
+// Next가 알아서 빌드타임에 정적 페이지를 생성해줌
+// PageRouter에서 paths 같은거?
+// build하고 Next 로그에서 확인 가능
+// generateStaticParams 해당 함수가 존재하면 해당하는 페이지가 강제로 static 페이지로 설정됨
+// 1,2,3만 미리 만들어 놓음 -> 4,5,6 등은 실시간으로 생성됨 (풀라우트 캐시) -> .Next/.cache ... 에서 확인 가능
+
+// export const dynamicParams = false; // 이렇게 하면 generateStaticParams에 없는 url로 오는 요청은 실시간 추가생성 안하고 바로 404보냄
+export function generateStaticParams() {
+  return [
+    {
+      id: "1", // value값은 무조건 문자열로
+    },
+    {
+      id: "2",
+    },
+    {
+      id: "3",
+    },
+  ];
+}
 
 export default async function Page({
   params,
@@ -13,6 +36,9 @@ export default async function Page({
   );
 
   if (!response.ok) {
+    if (response.status === 404) {
+      notFound();
+    }
     return <div>오류가 발생했습니다.</div>;
   }
 
@@ -113,3 +139,5 @@ export default async function Page({
 // 서버컴포넌트 (Dynamic Page <-> Static Page)
 // Dynamic Page (Cache 종류에 따라)
 // Static Page(Revalidate에 의해 staleTime이 지났다면 데이터 캐시 update하고, 풀라우트 캐시도 업데이트 : isr개념)
+
+// params가 동적이기 때문에 현재 페이지를 빌드타임에 만들려면 params관련된걸 미리 정의해 줘야 함
