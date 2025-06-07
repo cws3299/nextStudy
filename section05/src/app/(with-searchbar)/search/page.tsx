@@ -3,7 +3,7 @@ import { BookData } from "@/types";
 
 // 해당 페이지는 쿼리 스트링을 사용하므로 동적페이지, 그런데 강제로 dynamic을 force-static으로 설정할 경우
 // 정적페이지로 빌드는 되지만 동적함수들은 자동으로 q든 뭐든 undefined를 리턴하도록 바뀜, 데이터 캐싱 옵션도 force-cache로 바뀜
-export const dynamic = "error";
+// export const dynamic = "error";
 
 export default async function Page({
   searchParams,
