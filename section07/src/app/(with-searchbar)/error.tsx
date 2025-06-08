@@ -52,11 +52,4 @@ export default function Error({
 // (with-searchbar)/search의 page.tsx에도 적용됨
 
 // search 폴더 안에 error.tsx를 작성하면 현재 error.tsx가 적용되지 않고 search폴더안의 error.tsx가 덮어 씌워짐
-
 // book/1 에는 error.tsx를 핸들링 하려면 최상단으로 올리거나, 최상단용 error.tsx 만들어 놓기
-// src/app 아래에 바로 error.tsx 놓으면 searchBar에는 적용 안됨
-// book/[id] 경로에 error.tsx만들어야 함
-
-// 서버 액션
-// 브라우저에서 호출할 수 있는 서버에서 실행되는 비동기 함수
-// 기존 api를 통해서 진행하던 작업들 중 몇몇가지를 서버액션에서 처리할 수도 있음
