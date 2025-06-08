@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import style from "./page.module.css";
-import { createReviewAction } from "@/actions/createReviewAction";
+import { ReviewData } from "@/types";
+import ReviewItem from "@/components/reviewItem";
+import ReviewEditor from "@/components/reviewEditor";
 
 // generateStaticParams Next에서 제공해주는 generateStaticParams 함수에 해당 페이지에서 가능한 파라미터를 미리 정의해두면
 // Next가 알아서 빌드타임에 정적 페이지를 생성해줌
@@ -25,8 +27,7 @@ async function BookDetail({ bookId }: { bookId: string }) {
 
   const book = await response.json();
 
-  const { id, title, subTitle, description, author, publisher, coverImgUrl } =
-    book;
+  const { title, subTitle, description, author, publisher, coverImgUrl } = book;
 
   return (
     <section>
@@ -46,18 +47,22 @@ async function BookDetail({ bookId }: { bookId: string }) {
   );
 }
 
-function ReviewEditor({ bookId }: { bookId: string }) {
+async function ReviewList({ bookId }: { bookId: string }) {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/review/book/${bookId}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Review fetch failed: ${response.statusText}`); // error.tsx에서 이 에러 자동으로 캐치해서 표현
+  }
+
+  const reviews: ReviewData[] = await response.json();
+
   return (
     <section>
-      {/* // 브라우저에서 폼태그 제출하면 action props로 설정된 createReviewAction이라는 서버액션이 실행 */}
-      {/* 파일 분리했으므로 bookId는 따로 보내줘야 함 */}
-      <form action={createReviewAction}>
-        {/* <input name="bookId" value={bookId} hidden /> // 이렇게 하면 value는 주는데 value를 수정하는 onChange는 없다고 Next가 판단해서 에러 발생 -> readOnly추가 하면 됨*/}
-        <input name="bookId" value={bookId} hidden readOnly />
-        <input required name="content" placeholder="리뷰내용" />
-        <input required name="author" placeholder="작성자" />
-        <button type="submit">작성하기</button>
-      </form>
+      {reviews.map((review) => (
+        <ReviewItem key={`review-item-${review.id}`} {...review} />
+      ))}
     </section>
   );
 }
@@ -88,6 +93,7 @@ export default async function Page({
     <div className={style.container}>
       <BookDetail bookId={urlId} />
       <ReviewEditor bookId={urlId} />
+      <ReviewList bookId={urlId} />
     </div>
   );
 }
