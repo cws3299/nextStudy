@@ -1,9 +1,10 @@
 "use server";
+import { delay } from "@/util/delay";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 // 서버액션 별도 파일 분리시 파일 최상단 작성이 좀 더 일반적임
 
-export async function createReviewAction(formData: FormData) {
+export async function createReviewAction(state: any, formData: FormData) {
   const bookId = formData.get("bookId")?.toString();
   // console.log(formData);
   // 브라우저에서 호출했으므로 network탭에도 뜨고, 서버액션이므로 next로그에도 찍힘
@@ -24,10 +25,14 @@ export async function createReviewAction(formData: FormData) {
   // DB에 직접 접근도 가능하지만 NEXT 서버액션 자체를 테스트중이로 뚫린 API를 기반으로 작업
 
   if (!bookId || !content || !author) {
-    return;
+    return {
+      status: false, // useActionState에서 활용할 수 있게
+      error: "리뷰 내용과 작성자를 입력해주세요",
+    };
   }
 
   try {
+    await delay(2000);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_SERVER_URL}/review`,
       {
@@ -39,6 +44,10 @@ export async function createReviewAction(formData: FormData) {
         }),
       }
     );
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
 
     console.log(response.status);
     // revalidatePath(`/book/${bookId}`);
@@ -75,8 +84,15 @@ export async function createReviewAction(formData: FormData) {
     // 첫번째 방식보다 지금 이 5번째 방식이 나음, 하나의 페이지에 여러 api를 호출중일때
     // 특정 api의 캐시만 삭제할 수 있음
     revalidateTag(`review-${bookId}`);
+    return {
+      status: true,
+      error: "",
+    };
   } catch (error) {
     console.error(error);
-    return;
+    return {
+      status: false,
+      error: `리뷰 저장에 실패했습니다 : ${error}`,
+    };
   }
 }

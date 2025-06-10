@@ -9,7 +9,7 @@ import { Suspense } from "react";
 // export const dynamic = "error";
 
 async function SearchResult({ q }: { q: string }) {
-  await delay(1500); // 스트리밍 테스트 용
+  await delay(500); // 스트리밍 테스트 용
 
   const response = await fetch(
     `${
