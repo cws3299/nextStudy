@@ -1,4 +1,7 @@
-"use server"; // 서버액션 별도 파일 분리시 파일 최상단 작성이 좀 더 일반적임
+"use server";
+import { revalidatePath } from "next/cache";
+
+// 서버액션 별도 파일 분리시 파일 최상단 작성이 좀 더 일반적임
 
 export async function createReviewAction(formData: FormData) {
   const bookId = formData.get("bookId")?.toString();
@@ -38,6 +41,18 @@ export async function createReviewAction(formData: FormData) {
     );
 
     console.log(response.status);
+    revalidatePath(`/book/${bookId}`);
+    // Next서버가 자동으로 해당 페이지를 재생성함
+    // 리뷰가 작성되고, 이를 기반으로 새로 작성된 리뷰가 추가된 컴포넌트를 서버가 새로 만들어서 보냄
+    // Next 서버에게 인수에 들어간 페이지를 다시 생성(재검증) 해주길 요구함
+    // 해당 page의 자녀 페이지들 모두 재생성 + 데이터도 새로 불러옴
+    // 오직 서버액션이나 서버 컴포넌트에서만 실행가능
+
+    // revalidatePath는 해당 페이지에 포함된 모든 캐시들이 무효화 됨
+    // page.tsx에서 특정 fetch에 force-cache를 옵션으로 적용했다고 하더라도 기존 캐시 전부 삭제
+    // revalidate로 할 경우에는 풀라우트 캐시를 무효화 함, 다만 새로운 데이터로 풀라우트 캐시를 저장해주지 않음
+    // 새로고침을 하거나 다른페이지 다녀오면, 그때 다시 해당 페이지 방문시 실시간으로 스태틱 페이지가 생성되어 풀라우트가 작동함
+    // 왜 이렇게 하는 걸까? -> revalidate 요청 이후에, 페이지에 접속할 때 무조건 최신 데이터를 보장하기 위해서
   } catch (error) {
     console.error(error);
     return;

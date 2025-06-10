@@ -67,19 +67,19 @@ async function ReviewList({ bookId }: { bookId: string }) {
   );
 }
 
-export function generateStaticParams() {
-  return [
-    {
-      id: "1", // value값은 무조건 문자열로
-    },
-    {
-      id: "2",
-    },
-    {
-      id: "3",
-    },
-  ];
-}
+// export function generateStaticParams() {
+//   return [
+//     {
+//       id: "1", // value값은 무조건 문자열로
+//     },
+//     {
+//       id: "2",
+//     },
+//     {
+//       id: "3",
+//     },
+//   ];
+// }
 
 export default async function Page({
   params,
