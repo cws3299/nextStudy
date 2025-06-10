@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 // 서버액션 별도 파일 분리시 파일 최상단 작성이 좀 더 일반적임
 
@@ -41,7 +41,7 @@ export async function createReviewAction(formData: FormData) {
     );
 
     console.log(response.status);
-    revalidatePath(`/book/${bookId}`);
+    // revalidatePath(`/book/${bookId}`);
     // Next서버가 자동으로 해당 페이지를 재생성함
     // 리뷰가 작성되고, 이를 기반으로 새로 작성된 리뷰가 추가된 컴포넌트를 서버가 새로 만들어서 보냄
     // Next 서버에게 인수에 들어간 페이지를 다시 생성(재검증) 해주길 요구함
@@ -53,6 +53,28 @@ export async function createReviewAction(formData: FormData) {
     // revalidate로 할 경우에는 풀라우트 캐시를 무효화 함, 다만 새로운 데이터로 풀라우트 캐시를 저장해주지 않음
     // 새로고침을 하거나 다른페이지 다녀오면, 그때 다시 해당 페이지 방문시 실시간으로 스태틱 페이지가 생성되어 풀라우트가 작동함
     // 왜 이렇게 하는 걸까? -> revalidate 요청 이후에, 페이지에 접속할 때 무조건 최신 데이터를 보장하기 위해서
+
+    //revaidate 옵션
+    // 1. 특정 주소에 해당하는 페이지만 재검증
+    // revalidatePath(`/book/${bookId}`);
+
+    // 2.특정 경로의 모든 페이지 재검증 // book/1, book/2 모든 동적경로 한 번에 재검증
+    // 폴더, 파일명 기준으로 작성
+    // revalidatePath("/book/[id]", "page");
+
+    // 3. 특정 레이아웃을 갖는 모든 페이지 재검증
+    // (with-searchbar) 폴더에서 layout을 사용하는 모든 페이지 재검증
+    // revalidatePath("/(with-searchbar)", "layout");
+
+    // 4. 모든 데이터 재검증
+    // revalidatePath("/", "layout");
+
+    // 5. 태그 기준, 데이터 캐시 재검증
+    // tag값을 갖는 데이터 캐시가 재검증
+    // fetch의 data-cache 옵션에서 tags로 하는 옵션이 존재함
+    // 첫번째 방식보다 지금 이 5번째 방식이 나음, 하나의 페이지에 여러 api를 호출중일때
+    // 특정 api의 캐시만 삭제할 수 있음
+    revalidateTag(`review-${bookId}`);
   } catch (error) {
     console.error(error);
     return;
