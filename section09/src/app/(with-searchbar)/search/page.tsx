@@ -2,6 +2,7 @@ import BookItem from "@/components/book-item";
 import BookItemListSkeleton from "@/components/skeleton/bookItemListSkeleton";
 import { BookData } from "@/types";
 import { delay } from "@/util/delay";
+import { Metadata } from "next";
 import { Suspense } from "react";
 
 // 해당 페이지는 쿼리 스트링을 사용하므로 동적페이지, 그런데 강제로 dynamic을 force-static으로 설정할 경우
@@ -31,6 +32,34 @@ async function SearchResult({ q }: { q: string }) {
       ))}
     </div>
   );
+}
+
+// export const metadata: Metadata = {
+//   title: "한입 북스",
+//   description: "한입 북스에 등록된 도서를 만나보세요.",
+//   openGraph: {
+//     title: "한입 북스",
+//     description: "한입 북스에 등록된 도서를 만나보세요.",
+//     images: ["/thumbnail.png"],
+//   },
+// }; // 메타데이터에서는 Page의 params등에 접근 불가능함 (동적데이터에서만 이러한 방식으로 사용 불가능)
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q: string }>;
+}): Promise<Metadata> {
+  // 현재 페이지 메타 데이터를 동적으로 생성하는 역할
+  const { q } = await searchParams;
+  return {
+    title: `${q} : 한입 북스`,
+    description: `${q}의 검색결과입니다.`,
+    openGraph: {
+      title: `${q} : 한입 북스`,
+      description: `${q} : 한입 북스의 검색결과입니다`,
+      images: ["/thumbnail.png"], // /바로 뒤에 png 이런식으로 경로 명시하면 /를 public/으로 자동적으로 매핑시켜줌
+    },
+  };
 }
 
 export default async function Page({

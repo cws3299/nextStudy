@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import style from "./page.module.css";
-import { ReviewData } from "@/types";
+import { BookData, ReviewData } from "@/types";
 import ReviewItem from "@/components/reviewItem";
 import ReviewEditor from "@/components/reviewEditor";
 import Image from "next/image";
+import { Metadata } from "next";
 
 // generateStaticParams Next에서 제공해주는 generateStaticParams 함수에 해당 페이지에서 가능한 파라미터를 미리 정의해두면
 // Next가 알아서 빌드타임에 정적 페이지를 생성해줌
@@ -87,6 +88,34 @@ async function ReviewList({ bookId }: { bookId: string }) {
 //     },
 //   ];
 // }
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string | string[] }>;
+}): Promise<Metadata> {
+  // 현재 페이지 메타 데이터를 동적으로 생성하는 역할
+  const { id } = await params;
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/book/${id}`
+  ); // Request Memoizaton으로 하나의 페이지를 렌더링 하는동안 동일한 api 두 번 호출하면 캐싱을 알아서 해 줌
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  const book: BookData = await response.json();
+
+  return {
+    title: `${book.title} - 한입 북스`,
+    description: `${book.description}`,
+    openGraph: {
+      title: `${book.title} - 한입 북스`,
+      description: `${book.description}`,
+      images: [book.coverImgUrl], // /바로 뒤에 png 이런식으로 경로 명시하면 /를 public/으로 자동적으로 매핑시켜줌
+    },
+  };
+}
 
 export default async function Page({
   params,
@@ -181,3 +210,9 @@ export default async function Page({
 // Static Page(Revalidate에 의해 staleTime이 지났다면 데이터 캐시 update하고, 풀라우트 캐시도 업데이트 : isr개념)
 
 // params가 동적이기 때문에 현재 페이지를 빌드타임에 만들려면 params관련된걸 미리 정의해 줘야 함
+
+/// 검색엔진 최적화
+/// Sitemap 설정하기
+/// RSS 발행하기
+/// 시멘틱 태그 설정하기
+/// 메타 데이터 설정하기 - 페이지별 동적

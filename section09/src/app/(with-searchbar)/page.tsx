@@ -4,6 +4,7 @@ import { BookData } from "@/types";
 import { delay } from "@/util/delay";
 import { Suspense } from "react";
 import BookItemListSkeleton from "@/components/skeleton/bookItemListSkeleton";
+import { Metadata } from "next";
 
 // 특정 페이지의 유형을 강제로 Static, Dynamic 페이지로 설정
 // 1. auto : 기본값으로 아무 강제 없음, 현재 페이지의 동적 함수, 데이터캐싱등에 따라 알아서 설정
@@ -61,6 +62,15 @@ async function RecoBooks() {
 // 스트리밍 테스트 해보려면 dynamic 옵션 바꾸고 suspense줘봐
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "한입 북스",
+  description: "한입 북스에 등록된 도서를 만나보세요.",
+  openGraph: {
+    title: "한입 북스",
+    description: "한입 북스에 등록된 도서를 만나보세요.",
+    images: ["/thumbnail.png"], // /바로 뒤에 png 이런식으로 경로 명시하면 /를 public/으로 자동적으로 매핑시켜줌
+  },
+}; // 자동으로 현재 페이지의 메타데이터로 설정됨
 
 export default async function Home() {
   return (
